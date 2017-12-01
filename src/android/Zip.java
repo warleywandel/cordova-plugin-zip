@@ -58,6 +58,9 @@ public class Zip extends CordovaPlugin {
             String password = args.getString(2);
 
             ProgressEvent progress = new ProgressEvent();
+            boolean anyEntries = false;
+
+            CordovaResourceApi resourceApi = webView.getResourceApi();
 
             if (password == null) {
 
@@ -65,8 +68,6 @@ public class Zip extends CordovaPlugin {
                 // Accept a path or a URI for the source zip.
                 Uri zipUri = getUriForArg(zipFileName);
                 Uri outputUri = getUriForArg(outputDirectory);
-
-                CordovaResourceApi resourceApi = webView.getResourceApi();
 
                 File tempFile = resourceApi.mapUriToFile(zipUri);
                 if (tempFile == null || !tempFile.exists()) {
@@ -119,7 +120,7 @@ public class Zip extends CordovaPlugin {
 
                 ZipEntry ze;
                 byte[] buffer = new byte[32 * 1024];
-                boolean anyEntries = false;
+                
 
                 while ((ze = zis.getNextEntry()) != null) {
                     anyEntries = true;
@@ -151,14 +152,20 @@ public class Zip extends CordovaPlugin {
 
             } else {
 
-                ZipFile zipFile = new ZipFile(zipFileName);
+                ZipFile zipFile = new ZipFile(resourceApi.mapUriToFile(getUriForArg(zipFileName)));
 
                 if (zipFile.isEncrypted()) {
 
                     zipFile.setPassword(password);
                 }
 
-                zipFile.extractAll(outputDirectory);
+                File outputDirectoryFile = resourceApi.mapUriToFile(getUriForArg(outputDirectory));
+
+                outputDirectoryFile.mkdirs();
+
+                zipFile.extractAll(outputDirectoryFile.getAbsolutePath());
+
+                anyEntries = true;
 
                 progress.setLoaded(100);
             }
@@ -170,7 +177,7 @@ public class Zip extends CordovaPlugin {
             else
                 callbackContext.error("Bad zip file");
         } catch (Exception e) {
-            String errorMessage = "An error occurred while unzipping.";
+            String errorMessage = "An error occurred while unzipping: " + e.getMessage();
             callbackContext.error(errorMessage);
             Log.e(LOG_TAG, errorMessage, e);
         } finally {

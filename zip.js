@@ -8,25 +8,8 @@ function newProgressEvent(result) {
     return event;
 }
 
-exports.unzip = function(fileName, outputDirectory, callback, progressCallback) {
-    var win = function(result) {
-        if (result && typeof result.loaded != "undefined") {
-            if (progressCallback) {
-                return progressCallback(newProgressEvent(result));
-            }
-        } else if (callback) {
-            callback(0);
-        }
-    };
-    var fail = function(result) {
-        if (callback) {
-            callback(-1);
-        }
-    };
-    exec(win, fail, 'Zip', 'unzip', [fileName, outputDirectory]);
-};
-
 exports.unzip = function(fileName, outputDirectory, password, callback, progressCallback) {
+    console.log('Extracting ' + fileName + ' in ' + outputDirectory)
     var win = function(result) {
         if (result && typeof result.loaded != "undefined") {
             if (progressCallback) {
@@ -40,6 +23,7 @@ exports.unzip = function(fileName, outputDirectory, password, callback, progress
         if (callback) {
             callback(-1);
         }
+        console.log(result)
     };
     exec(win, fail, 'Zip', 'unzip', [fileName, outputDirectory, password]);
 };
