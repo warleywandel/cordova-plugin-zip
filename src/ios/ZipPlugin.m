@@ -31,7 +31,7 @@
         @try {
             NSString *zipURL = [command.arguments objectAtIndex:0];
             NSString *destinationURL = [command.arguments objectAtIndex:1];
-            NSString *passwordParam = [comand.arguments.objectAtIndex:2]
+            NSString *passwordParam = [command.arguments objectAtIndex:2];
             NSError *error;
 
             NSString *zipPath = [self pathForURL:zipURL];
